@@ -32,6 +32,7 @@ namespace FlashCards
 				sqlCommand.CommandText = @"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'StudySession' and type ='U')
 				CREATE TABLE StudySession (StudySessionId int PRIMARY KEY NOT NULL IDENTITY(1,1),
 											StackId int NOT NULL,
+											StackName nvarchar(255) NOT NULL,
 											StudyDate date NOT NULL DEFAULT getdate(),
 											Score int NOT NULL
 											CONSTRAINT FK_StackStudySession FOREIGN KEY (StackId)
@@ -464,19 +465,20 @@ namespace FlashCards
 				Console.Clear();
 			}
 
-			CreateStudySession(connectionString, stackId, score);
+			CreateStudySession(connectionString, stackId, stackName, score);
 			Console.WriteLine("Exiting Study session");
 			Console.WriteLine($"You got {score} right out of {flashcardList.Count}");
 			Console.ReadKey();
 		}
-		private static void CreateStudySession(string connectionString, string stackId, int score)
+		private static void CreateStudySession(string connectionString, string stackId, string stackName, int score)
 		{
 			using (var connection = new SqlConnection(connectionString))
 			{
 				connection.Open();
 				var sqlCommand = connection.CreateCommand();
-				sqlCommand.CommandText = "INSERT INTO dbo.StudySession (StackId, Score) VALUES (@stackId, @score)";
+				sqlCommand.CommandText = "INSERT INTO dbo.StudySession (StackId, StackName, Score) VALUES (@stackId, @stackName, @score)";
 				sqlCommand.Parameters.Add(new SqlParameter("@stackId", stackId));
+				sqlCommand.Parameters.Add(new SqlParameter("@stackName", stackName));
 				sqlCommand.Parameters.Add(new SqlParameter("@score", score));
 				sqlCommand.ExecuteNonQuery();
 				connection.Close();
@@ -490,7 +492,7 @@ namespace FlashCards
 			{
 				connection.Open();
 				var sqlCommand = connection.CreateCommand();
-				sqlCommand.CommandText = "SELECT StudySessionId, StackId, StudyDate, Score FROM dbo.StudySession";
+				sqlCommand.CommandText = "SELECT StudySessionId, StackId, StackName, StudyDate, Score FROM dbo.StudySession";
 				SqlDataReader reader = sqlCommand.ExecuteReader();
 				if (reader.HasRows)
 				{
@@ -498,12 +500,11 @@ namespace FlashCards
 					{
 						sessions.Add(new StudySession
 						{
-
-
 							StudySessionId = reader.GetInt32(0),
 							StackId = reader.GetInt32(1),
-							StudyDate = reader.GetDateTime(2),
-							Score = reader.GetInt32(3),
+							StackName = reader.GetString(2),
+							StudyDate = reader.GetDateTime(3),
+							Score = reader.GetInt32(4),
 						});
 					}
 				}
@@ -511,8 +512,8 @@ namespace FlashCards
 			ConsoleTableBuilder
 				.From(sessions)
 				.WithTitle("Study Sessions")
-				.WithColumn("Id", "StackId", "Date", "Score")
-				.WithFormatter(2, f => $"{f:dd/MM/yy}")
+				.WithColumn("Id", "StackId", "StackName", "Date", "Score")
+				.WithFormatter(3, f => $"{f:dd/MM/yy}")
 				.ExportAndWriteLine();
 			Console.ReadKey();
 		}
