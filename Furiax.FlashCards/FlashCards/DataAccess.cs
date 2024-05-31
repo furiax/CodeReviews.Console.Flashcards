@@ -1,6 +1,7 @@
 ﻿using ConsoleTableExt;
 using FlashCards.Model;
 using System.Data.SqlClient;
+using System.Diagnostics;
 
 namespace FlashCards
 {
@@ -129,6 +130,7 @@ namespace FlashCards
 				connection.Close();
 			}
 			Console.WriteLine($"New stack {stackName} created");
+			UserInput.GetStackMenuInput(connectionString);
 		}
 		internal static bool DoesStackExist(string connectionString, string inputName)
 		{
@@ -171,7 +173,8 @@ namespace FlashCards
 				}
 				Console.WriteLine("Stack succesfully deleted");
 			}
-		}
+            UserInput.GetStackMenuInput(connectionString);
+        }
 		internal static void RenameStack(string connectionString)
 		{
 			Console.Clear();
@@ -200,7 +203,8 @@ namespace FlashCards
 				}
 				Console.WriteLine("Stack succesfully renamed");
 			}
-		}
+            UserInput.GetStackMenuInput(connectionString);
+        }
 		internal static List<FlashcardDTO> BuildFlashcardDTOcustomId(string connectionString, string stackId)
 		{
 			List<FlashcardDTO> flashcards = new();
@@ -267,7 +271,9 @@ namespace FlashCards
 					.WithColumn("Id", "Front", "Back")
 					.ExportAndWriteLine();
 			}
-		}
+			Console.ReadLine();
+            UserInput.GetFlashCardMenuInput(connectionString, stackName, stackId);
+        }
 		internal static void ShowXFlashcards(string connectionString, string stackName, string stackId)
 		{
 			Console.Clear();
@@ -322,8 +328,10 @@ namespace FlashCards
 					}
 				}
 			}
-		}
-		internal static void CreateFlashcard(string connectionString, string stackId)
+            Console.ReadLine();
+            UserInput.GetFlashCardMenuInput(connectionString, stackName, stackId);
+        }
+		internal static void CreateFlashcard(string connectionString, string stackName, string stackId)
 		{
 			Console.Clear();
 			Console.WriteLine("Create new flashcard:");
@@ -341,8 +349,10 @@ namespace FlashCards
 				sqlCommand.ExecuteNonQuery();
 				connection.Close();
 			}
-		}
-		internal static void ModifyFlashcard(string connectionString, string stackId)
+			UserInput.GetFlashCardMenuInput(connectionString, stackName, stackId);
+
+        }
+		internal static void ModifyFlashcard(string connectionString, string stackName, string stackId)
 		{
 			Console.Clear();
 			List<FlashcardDTO> flashcards = BuildFlashcardDTO(connectionString, stackId);
@@ -378,8 +388,9 @@ namespace FlashCards
 				else
 					Console.WriteLine("A flashcard with this id does not exist, try again");
 			}
-		}
-		internal static void DeleteFlashcard(string connectionString, string stackId)
+            UserInput.GetFlashCardMenuInput(connectionString, stackName, stackId);
+        }
+		internal static void DeleteFlashcard(string connectionString, string stackName, string stackId)
 		{
 			Console.Clear();
 			List<FlashcardDTO> flashcards = BuildFlashcardDTO(connectionString, stackId);
@@ -411,7 +422,8 @@ namespace FlashCards
 				else
 					Console.WriteLine("A flashcard with that id does not exist, please try again");
 			}
-		}
+            UserInput.GetFlashCardMenuInput(connectionString, stackName, stackId);
+        }
 		internal static void TakeQuiz(string connectionString, string stackName, string stackId)
 		{
 			Console.Clear();
@@ -486,6 +498,8 @@ namespace FlashCards
 					{
 						sessions.Add(new StudySession
 						{
+
+
 							StudySessionId = reader.GetInt32(0),
 							StackId = reader.GetInt32(1),
 							StudyDate = reader.GetDateTime(2),

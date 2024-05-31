@@ -82,17 +82,18 @@ namespace FlashCards
 				case "0":
 					GetMenuInput(connectionString); break;
 				case "1":
-					GetStackName(connectionString); break;
+                    DataAccess.Flashcards(connectionString);
+                    break;
 				case "2":
 					DataAccess.ShowAllFlashcards(connectionString, stackName, stackId); Console.ReadKey(); break;
 				case "3":
 					DataAccess.ShowXFlashcards(connectionString, stackName, stackId); Console.ReadKey(); break;
 				case "4":
-					DataAccess.CreateFlashcard(connectionString, stackId); break;
+					DataAccess.CreateFlashcard(connectionString, stackName, stackId); break;
 				case "5":
-					DataAccess.ModifyFlashcard(connectionString, stackId); break;
+					DataAccess.ModifyFlashcard(connectionString, stackName, stackId); break;
 				case "6":
-					DataAccess.DeleteFlashcard(connectionString, stackId); break;
+					DataAccess.DeleteFlashcard(connectionString, stackName, stackId); break;
 				default:
 					Console.WriteLine("Invalid input");
 					Console.ReadKey();
